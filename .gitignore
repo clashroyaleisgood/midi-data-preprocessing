@@ -1,0 +1,10 @@
+__pycache__/
+.vscode/
+midi_analysis.py
+temp_read_mido.py
+*.mid
+*.npz
+error_log.txt
+success_log.txt
+fail_log.txt
+label.txt
