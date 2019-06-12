@@ -1,6 +1,5 @@
 __pycache__/
 .vscode/
-temp_read_mido.py
 *.mid
 *.npz
 error_log.txt
