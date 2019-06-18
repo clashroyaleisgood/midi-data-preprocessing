@@ -232,7 +232,8 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
             if m[0] < try_end:
                 continue
             else:   # 超過長度了! 查看目前字串
-                if i - try_i > MSG_min:     # MSG 數量合格 & 時間長度合格(上面的)
+                if i - try_i > MSG_min and ori_data[i-1][0]-try_begin > segment - 100:
+                    # MSG 數量合格 && 時間長度合格(上面的) && 整個 segment 最少要有 "segment-100" 長度的時間
                     if good_seg_count == 0:  # succ log
                         log_suc.log('{}'.format(filename))
                     print('\t segment: {}'.format(good_seg_count+1 ))

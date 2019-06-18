@@ -19,27 +19,6 @@ class File: 用來管理多個 midi 文件
     __len__: 資料夾內有幾個 midi file
     __str__: 輸出格式
 '''
-'''
-class Track: 用來管理一個track
-    __init__: 初始化 輸入 "最小單位"
-    event_process(): 處理一個 event (使用多個函式)
-    ---> updata_time(): 更新 self.time_count 時間
-    ---> note_on(): on 事件就呼叫他
-    ---> note_off(): off 事件
-    left_event(): 將 midi 檔忘了關掉的 note note_off()
-    sort(): 排序 self.output()
-    __str__: print() 格式
-
-class File: 用來管理多個 midi 文件
-    __init__: 初始化
-    read_file_names(): 將路徑底下所有 midi 檔的名稱 存起來
-    read_all_file(): 每次開啟一個 midi file
-    ---> 用法 for file in read_all_file():
-    ------->      file...
-    ---> 相當於多次使用 file = MidiFile(filename)
-    __len__: 資料夾內有幾個 midi file
-    __str__: 輸出格式
-'''
 import numpy as np
 
 # DEAL with a track: track -> numpy arr
@@ -253,7 +232,8 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
             if m[0] < try_end:
                 continue
             else:   # 超過長度了! 查看目前字串
-                if i - try_i > MSG_min:     # MSG 數量合格 & 時間長度合格(上面的)
+                if i - try_i > MSG_min and ori_data[i-1][0]-try_begin > segment - 100:
+                    # MSG 數量合格 && 時間長度合格(上面的) && 整個 segment 最少要有 "segment-100" 長度的時間
                     if good_seg_count == 0:  # succ log
                         log_suc.log('{}'.format(filename))
                     print('\t segment: {}'.format(good_seg_count+1 ))
