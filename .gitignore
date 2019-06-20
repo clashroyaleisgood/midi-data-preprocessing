@@ -2,7 +2,5 @@ __pycache__/
 .vscode/
 *.mid
 *.npz
-error_log.txt
-success_log.txt
-fail_log.txt
+*.txt
 label.txt
