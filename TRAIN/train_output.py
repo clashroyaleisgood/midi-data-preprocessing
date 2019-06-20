@@ -1,12 +1,14 @@
 from mido import MidiFile
 from support.midi_analysis import Track, File, do_output
+from support.theme import select_theme
 from support.do_log import Log
 import numpy as np
 import os
 import time
 dir_path = os.path.dirname(os.path.realpath(__file__))
+COUNT_TIME = True
 
-MIDI_EVENT_MAX = 500
+MIDI_EVENT_MAX = 200
 MIDI_EVENT_MIN = 40
 MIDI_SEGMENT = 500      # 單位: 1/24 拍(beat)
 SEGMENT_DENSITY = 10
@@ -21,7 +23,6 @@ error = Log(dir_path + '\\', "error_log.txt")
 success = Log(dir_path + '\\', "success_log.txt")
 fail = Log(dir_path + '\\', "fail_log.txt")
 logs={'log_err': error, 'log_suc': success, 'log_fai': fail}
-
 train = {
     'jazz': ('\\data\\train_jazz\\', 1),
     'nonjazz': ('\\data\\train_non_jazz\\', 0)
@@ -37,22 +38,39 @@ else:
 now = time.time()
 #=========================================== READ JAZZ/NON-JAZZ MIDI ============================================
 
+timer= Log(dir_path + '\\', 'timer.txt')
 for data_folder, jz_or_not in to_process:
     files = File(dir_path + data_folder, error_log=error)    # 輸入 midi 所在地的資料夾/ log file name
     files.read_file_names()                 # 進入資料夾 尋找所有 midi 檔
     print(files)
-
+    if COUNT_TIME:
+        temp = time.time()
     for mf, file_name in files.read_all_file():        # mf = MidiFile(file_place)
         print('{:04}: {:12}'.format(segment_count, file_name))
-        
+
+        if COUNT_TIME:
+            timer.log('open: {:<6.5}'.format(time.time()-temp), end=' -  ')
+            temp = time.time()
+
         tk = Track(segment=MIDI_SEGMENT, unit_size=mf.ticks_per_beat//24)       # 輸入最小單位的大小 (tick)
 
-        track = mf.tracks[files.select_track(midifile=mf)]         #select track
+        track_number = files.select_track(mf)
+        if track_number:
+            track = mf.tracks[track_number]         #select track
+        else:
+            if COUNT_TIME:
+                timer.log('')
+            continue
+
+        if COUNT_TIME:
+            timer.log('sele: {:<6.5}'.format(time.time()-temp), end=' -  ')
+            temp = time.time()
 
         for i, e in enumerate(track):
             tk.event_process(e)
         tk.left_event()
         tk.to_sort_list()
+
         '''
 # ---------------------
         if tk.valid_output():
@@ -73,6 +91,9 @@ for data_folder, jz_or_not in to_process:
         else:
             print('\t\tERROR_LENGTH/TIME at: {}'.format(file_name))
             error.log('LENGTH ERROR: {} {}'.format(len(tk.output), file_name))
+        if COUNT_TIME:
+            timer.log('proc: {:<6.5}'.format(time.time()-temp))
+            temp = time.time()
 #           succ-> new x_train, fail-> old x_train
 
 # end processing midi
