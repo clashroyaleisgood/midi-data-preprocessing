@@ -126,6 +126,7 @@ class Track():
 from os import walk
 from os.path import isdir
 from mido import MidiFile
+from support.theme import select_theme
 #======================================================================================
 
 # DEAL with files: label/ midi folders/ open midi
@@ -178,10 +179,7 @@ class File():
 
     def select_track(self, midifile=None, filename=None):
         if midifile:                      # midifile (for train data)
-            l=[]
-            for e in midifile.tracks:
-                l.append(len(e))
-            return l.index(max(l))
+            return select_theme(midifile)
         elif filename:              # filename (for test data)
             try:
                 return self.label[filename]
