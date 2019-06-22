@@ -1,17 +1,18 @@
 from mido import MidiFile
 from support.midi_analysis import Track, File, do_output
-from support.theme import select_theme
 from support.do_log import Log
+from support.contant import MIDI_EVENT_MAX, MIDI_EVENT_MIN, MIDI_SEGMENT, SEGMENT_DENSITY
 import numpy as np
 import os
 import time
 dir_path = os.path.dirname(os.path.realpath(__file__))
 COUNT_TIME = True
-
+'''
 MIDI_EVENT_MAX = 200
 MIDI_EVENT_MIN = 40
 MIDI_SEGMENT = 500      # 單位: 1/24 拍(beat)
 SEGMENT_DENSITY = 10    # 單位: 單位時間/event
+'''
 constants={'event_min': MIDI_EVENT_MIN, 'event_max': MIDI_EVENT_MAX, \
           'segment': MIDI_SEGMENT, 'density': SEGMENT_DENSITY}
 x_train = []                            # 儲存所有的 midi 資料 (numpy array)

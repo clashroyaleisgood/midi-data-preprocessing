@@ -1,31 +1,17 @@
-'''
-資料夾配置
-├── support/
-│   ├─── midi_analysis.py   #與 train data 的 midi_analysis.py 略有不同 -> 完全相同
-│   └─── do_log.py
-├─── data/
-│   ├─── test_jazz/
-│   │    ├─── jazz-1.mid
-│   │    └─── jazz-2.mid
-│   ├─── test_non_jazz/
-│   │    ├─── non-jazz-1.mid
-│   │    └─── non-jazz-2.misd
-│   ├─── jazz_label.txt
-│   └─── non_jazz_label.txt
-└── output_midi.py
-'''
 from mido import MidiFile
 from support.midi_analysis import Track, File, do_output
 from support.do_log import Log
+from support.contant import MIDI_EVENT_MAX, MIDI_EVENT_MIN, MIDI_SEGMENT, SEGMENT_DENSITY
 import numpy as np
 import os
 import time
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
+'''
 MIDI_EVENT_MAX = 200
 MIDI_EVENT_MIN = 40
 MIDI_SEGMENT = 500      # 單位: 1/24 拍(beat)
 SEGMENT_DENSITY = 10
+'''
 constants={'event_min': MIDI_EVENT_MIN, 'event_max': MIDI_EVENT_MAX, \
           'segment': MIDI_SEGMENT, 'density': SEGMENT_DENSITY}
 
