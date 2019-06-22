@@ -16,6 +16,7 @@ def select_theme(mid):
     for i, track in enumerate(mid.tracks):
         note_count=0
         pro_change_count=0
+        pro_change_to = 0
         more_than_one = 0
         #print('Track {}: {}'.format(i, track.name))
         for j in range(len(mid.tracks[i])):
@@ -32,8 +33,9 @@ def select_theme(mid):
                 ##看看那個區間裡是否有其他音也在（即兩個音重疊）##
             if mid.tracks[i][j].type == 'note_on' or mid.tracks[i][j].type == 'note_off' :
                 note_count+=1
-            if mid.tracks[i][j].type == 'program_change':
+            if mid.tracks[i][j].type == 'program_change' and pro_change_to != track[j].program:
                 pro_change_count+=1
+                pro_change_to = track[j].program
 
         if note_count>=basic_note_count and pro_change_count<=5:
             select_track.append(Select_Track(i, more_than_one)) ##把這些重疊的數量和track的編號加到剛剛的class裡面##
