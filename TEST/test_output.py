@@ -22,7 +22,7 @@ import os
 import time
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-MIDI_EVENT_MAX = 500
+MIDI_EVENT_MAX = 200
 MIDI_EVENT_MIN = 40
 MIDI_SEGMENT = 500      # 單位: 1/24 拍(beat)
 SEGMENT_DENSITY = 10
@@ -65,7 +65,12 @@ for data_folder, jz_or_not, label_txt in to_process:
 
         tk = Track(segment=MIDI_SEGMENT, unit_size=mf.ticks_per_beat//24)       # 輸入最小單位的大小 (tick)
 
-        track = mf.tracks[files.select_track(filename=file_name)]         #select track
+        track_number = files.select_track(filename=file_name)
+
+        if track_number:
+            track = mf.tracks[track_number]         #select track
+        else:
+            continue
 
         for i, e in enumerate(track):
             tk.event_process(e)
@@ -83,7 +88,7 @@ for data_folder, jz_or_not, label_txt in to_process:
         '''
         if tk.valid_output():
             x_test, y_test, seg_count = do_output( \
-                ori_data=tk.output, jz_or_not=jz_or_not, x_data=x_test, y_data=y_test, filename=file_name, **logs, **constants)
+                ori_data=tk.output, jz_or_not=jz_or_not, x_data=x_test, y_data=y_test, filename=file_name, track_number=track_number, **logs, **constants)
             segment_count += seg_count[0]
             broken_segment_count += seg_count[1]
         else:

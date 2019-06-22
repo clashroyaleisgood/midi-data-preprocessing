@@ -197,7 +197,7 @@ class File():
 # MIDI_EVENT_COUNT, MIDI_SEGMENT,
 # success, error, density(隔多遠拿一個音)(segment 的 heuristic)
 # filename
-def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, filename, event_min, event_max, segment, density):
+def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, filename, track_number, event_min, event_max, segment, density):
     def end_time(i):
         return ori_data[i][0]# + ori_data[i][1]
 
@@ -233,7 +233,7 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
                 if i - try_i > MSG_min and ori_data[i-1][0]-try_begin > segment - 100:
                     # MSG 數量合格 && 時間長度合格(上面的) && 整個 segment 最少要有 "segment-100" 長度的時間
                     if good_seg_count == 0:  # succ log
-                        log_suc.log('{}'.format(filename))
+                        log_suc.log('{} - {}'.format(filename, track_number))
                     print('\t segment: {}'.format(good_seg_count+1 ))
                     log_suc.log('\tmsg: {:<4} [{:5}:{:5}] beat length: {:<7}'.format(
                                 i-try_i, try_i, i, end_time(i-1) - try_begin))
@@ -250,7 +250,7 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
                     good_seg_count += 1
                 else:                       # 不好的 segment
                     if bad_seg_count == 0:
-                        log_fai.log('{}'.format(filename))
+                        log_fai.log('{} - {}'.format(filename, track_number))
                     log_fai.log('\tmsg: {:<4} [{:5}:{:5}] beat length: {:<7}'.format(
                                 i-try_i, try_i, i, end_time(i-1) - try_begin))
                     print("invalid segment")
@@ -260,10 +260,10 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
     if good_seg_count == 0:
         if bad_seg_count == 0:
             print('No suitable segment: {}'.format(filename))
-            log_err.log('No suitable segment(even 0 bad segment): {}'.format(filename))
+            log_err.log('No suitable segment(even 0 bad segment): {} - {}'.format(filename, track_number))
         else:
             print('No suitable segment: {}'.format(filename))
-            log_err.log('No suitable segment( {} bad segment): {}'.format(bad_seg_count, filename))
+            log_err.log('No suitable segment( {} bad segment): {} - {}'.format(bad_seg_count, filename, track_number))
         return x_data, y_data, [0, bad_seg_count]
 
     else:               # 有找到 segment

@@ -11,7 +11,7 @@ COUNT_TIME = True
 MIDI_EVENT_MAX = 200
 MIDI_EVENT_MIN = 40
 MIDI_SEGMENT = 500      # 單位: 1/24 拍(beat)
-SEGMENT_DENSITY = 10
+SEGMENT_DENSITY = 10    # 單位: 單位時間/event
 constants={'event_min': MIDI_EVENT_MIN, 'event_max': MIDI_EVENT_MAX, \
           'segment': MIDI_SEGMENT, 'density': SEGMENT_DENSITY}
 x_train = []                            # 儲存所有的 midi 資料 (numpy array)
@@ -54,6 +54,9 @@ for data_folder, jz_or_not in to_process:
 
         tk = Track(segment=MIDI_SEGMENT, unit_size=mf.ticks_per_beat//24)       # 輸入最小單位的大小 (tick)
 
+        if COUNT_TIME:
+            temp = time.time()
+        
         track_number = files.select_track(mf)
         if track_number:
             track = mf.tracks[track_number]         #select track
@@ -85,7 +88,7 @@ for data_folder, jz_or_not in to_process:
 # ---------------------
         if tk.valid_output():
             x_train, y_train, seg_count = do_output( \
-                ori_data=tk.output, jz_or_not=jz_or_not, x_data=x_train, y_data=y_train, filename=file_name, **logs, **constants)
+                ori_data=tk.output, jz_or_not=jz_or_not, x_data=x_train, y_data=y_train, filename=file_name, track_number=track_number, **logs, **constants)
             segment_count += seg_count[0]
             broken_segment_count += seg_count[1]
         else:
