@@ -56,6 +56,7 @@ for data_folder, jz_or_not, label_txt in to_process:
         if track_number:
             track = mf.tracks[track_number]         #select track
         else:
+            error.log('LABEL ERROR: {}'.format(file_name))
             continue
 
         for i, e in enumerate(track):

@@ -62,6 +62,7 @@ for data_folder, jz_or_not in to_process:
         if track_number:
             track = mf.tracks[track_number]         #select track
         else:
+            error.log('THEME ERROR: {}'.format(file_name))
             if COUNT_TIME:
                 timer.log('')
             continue
