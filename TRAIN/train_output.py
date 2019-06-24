@@ -59,6 +59,10 @@ for data_folder, jz_or_not in to_process:
             temp = time.time()
         
         track_number = files.select_track(mf)
+        if COUNT_TIME:
+            timer.log('sele: {:<6.5}'.format(time.time()-temp), end=' -  ')
+            temp = time.time()
+
         if track_number:
             track = mf.tracks[track_number]         #select track
         else:
@@ -66,10 +70,6 @@ for data_folder, jz_or_not in to_process:
             if COUNT_TIME:
                 timer.log('')
             continue
-
-        if COUNT_TIME:
-            timer.log('sele: {:<6.5}'.format(time.time()-temp), end=' -  ')
-            temp = time.time()
 
         for i, e in enumerate(track):
             tk.event_process(e)
