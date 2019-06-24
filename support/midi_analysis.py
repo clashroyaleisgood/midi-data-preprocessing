@@ -105,7 +105,7 @@ class Track():
             raise Exception('invalid note-off!')'''
 
     def valid_output(self):     # event 數量夠多 而且 總持續時間夠長
-        if len(self.output) < 100:  # too short
+        if len(self.output) < 20:  # too short
             print("too short")
             return False
         elif self.output[-1][0] - self.output[0][0] < self.segment:
@@ -184,11 +184,12 @@ class File():
             try:
                 return self.label[filename]
             except:
-                raise Exception("can't find file {} in label".format(filename))
+                return None
+                #raise Exception("can't find file {} in label".format(filename))
 
 #======================================================================================
 
-# DEAL with output (called by Track()): lsit to sliced numpy arr
+# DEAL with output (called by Track()): list to sliced numpy arr
 # input : list(begin, length), jz_or_not
 # attr  : time length, msg length, log files, density, filename
 # output: np.arr? -> x_data, y_data
@@ -239,8 +240,8 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
                                 i-try_i, try_i, i, end_time(i-1) - try_begin))
                     # ----------------------------------------------------------------
                     seg_array = np.array(ori_data[try_i: i])
-                    for i in range(len(seg_array)):     # 起點對齊
-                        seg_array[i][0] -= try_begin
+                    for e in range(len(seg_array)):     # 起點對齊
+                        seg_array[e][0] -= try_begin
                     if i- try_i < event_max:
                         seg_array=np.pad(seg_array, ((0, event_max-len(seg_array)), (0, 0)), 'constant')
                     else:
