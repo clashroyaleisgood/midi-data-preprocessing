@@ -1,5 +1,7 @@
 __pycache__/
 .vscode/
+WHOLE data/
+temp_read/
 *.mid
 *.npz
 *.txt

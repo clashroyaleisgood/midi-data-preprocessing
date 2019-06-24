@@ -105,7 +105,7 @@ class Track():
             raise Exception('invalid note-off!')'''
 
     def valid_output(self):     # event 數量夠多 而且 總持續時間夠長
-        if len(self.output) < 100:  # too short
+        if len(self.output) < 20:  # too short
             print("too short")
             return False
         elif self.output[-1][0] - self.output[0][0] < self.segment:
@@ -126,6 +126,7 @@ class Track():
 from os import walk
 from os.path import isdir
 from mido import MidiFile
+from temp_read.theme import select_theme
 #======================================================================================
 
 # DEAL with files: label/ midi folders/ open midi
@@ -178,19 +179,17 @@ class File():
 
     def select_track(self, midifile=None, filename=None):
         if midifile:                      # midifile (for train data)
-            l=[]
-            for e in midifile.tracks:
-                l.append(len(e))
-            return l.index(max(l))
+            return select_theme(midifile)
         elif filename:              # filename (for test data)
             try:
                 return self.label[filename]
             except:
-                raise Exception("can't find file {} in label".format(filename))
+                return None
+                #raise Exception("can't find file {} in label".format(filename))
 
 #======================================================================================
 
-# DEAL with output (called by Track()): lsit to sliced numpy arr
+# DEAL with output (called by Track()): list to sliced numpy arr
 # input : list(begin, length), jz_or_not
 # attr  : time length, msg length, log files, density, filename
 # output: np.arr? -> x_data, y_data
@@ -199,7 +198,7 @@ class File():
 # MIDI_EVENT_COUNT, MIDI_SEGMENT,
 # success, error, density(隔多遠拿一個音)(segment 的 heuristic)
 # filename
-def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, filename, event_min, event_max, segment, density):
+def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, filename, track_number, event_min, event_max, segment, density):
     def end_time(i):
         return ori_data[i][0]# + ori_data[i][1]
 
@@ -232,18 +231,23 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
             if m[0] < try_end:
                 continue
             else:   # 超過長度了! 查看目前字串
-                if i - try_i > MSG_min:     # MSG 數量合格 & 時間長度合格(上面的)
+                if i - try_i > MSG_min and ori_data[i-1][0]-try_begin > segment - 100:
+                    # MSG 數量合格 && 時間長度合格(上面的) && 整個 segment 最少要有 "segment-100" 長度的時間
                     if good_seg_count == 0:  # succ log
-                        log_suc.log('{}'.format(filename))
+                        log_suc.log('{} - {}'.format(filename, track_number))
                     print('\t segment: {}'.format(good_seg_count+1 ))
                     log_suc.log('\tmsg: {:<4} [{:5}:{:5}] beat length: {:<7}'.format(
                                 i-try_i, try_i, i, end_time(i-1) - try_begin))
                     # ----------------------------------------------------------------
                     seg_array = np.array(ori_data[try_i: i])
-                    for i in range(len(seg_array)):     # 起點對齊
-                        seg_array[i][0] -= try_begin
+                    for e in range(len(seg_array)):     # 起點對齊
+                        seg_array[e][0] -= try_begin
                     if i- try_i < event_max:
+                        print('act 1')
+                        print("i: {}, try_i: {}, event_max: {}, len(seg): {}".format(i, try_i, event_max, len(seg_array)))
+                        print('try: np.pad(seg_array, ((0, {}), (0, 0)), \'constant\''.format(event_max-len(seg_array)))
                         seg_array=np.pad(seg_array, ((0, event_max-len(seg_array)), (0, 0)), 'constant')
+                        print('act 2')
                     else:
                         seg_array=seg_array[:event_max]
                     # ----------------------------------------------------------------
@@ -251,7 +255,7 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
                     good_seg_count += 1
                 else:                       # 不好的 segment
                     if bad_seg_count == 0:
-                        log_fai.log('{}'.format(filename))
+                        log_fai.log('{} - {}'.format(filename, track_number))
                     log_fai.log('\tmsg: {:<4} [{:5}:{:5}] beat length: {:<7}'.format(
                                 i-try_i, try_i, i, end_time(i-1) - try_begin))
                     print("invalid segment")
@@ -261,16 +265,16 @@ def do_output(ori_data, jz_or_not, x_data, y_data, log_suc, log_err, log_fai, fi
     if good_seg_count == 0:
         if bad_seg_count == 0:
             print('No suitable segment: {}'.format(filename))
-            log_err.log('No suitable segment(even 0 bad segment): {}'.format(filename))
+            log_err.log('No suitable segment(even 0 bad segment): {} - {}'.format(filename, track_number))
         else:
             print('No suitable segment: {}'.format(filename))
-            log_err.log('No suitable segment( {} bad segment): {}'.format(bad_seg_count, filename))
+            log_err.log('No suitable segment( {} bad segment): {} - {}'.format(bad_seg_count, filename, track_number))
+        return x_data, y_data, [0, bad_seg_count]
 
-        return x_data, y_data, 0
     else:               # 有找到 segment
         x_data = np.append(x_data, buffer)
         y_data = np.append(y_data, [jz_or_not]*good_seg_count)
-        return x_data, y_data, good_seg_count
+        return x_data, y_data, [good_seg_count, bad_seg_count]
 
 
 if __name__ == "__main__":
