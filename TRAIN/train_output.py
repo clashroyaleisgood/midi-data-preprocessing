@@ -1,7 +1,7 @@
 from mido import MidiFile
 from support.midi_analysis import Track, File, do_output
 from support.do_log import Log
-from support.contant import MIDI_EVENT_MAX, MIDI_EVENT_MIN, MIDI_SEGMENT, SEGMENT_DENSITY
+from support.constant import MIDI_EVENT_MAX, MIDI_EVENT_MIN, MIDI_SEGMENT, SEGMENT_DENSITY
 import numpy as np
 import os
 import time
