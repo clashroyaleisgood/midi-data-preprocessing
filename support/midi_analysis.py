@@ -126,7 +126,7 @@ class Track():
 from os import walk
 from os.path import isdir
 from mido import MidiFile
-from support.theme import select_theme
+from support.theme import select_theme, select_max_len
 #======================================================================================
 
 # DEAL with files: label/ midi folders/ open midi
